@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080b18">
+<meta name="description" content="Explore your social graph, discover mutual friends, and visualize connections with graph algorithms.">
+<title>Social Network Friend Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<aside id="side">
+  <div class="brand"><span class="logo">◎</span> FriendFinder</div>
+  <nav id="nav">
+    <button data-page="dashboard" class="on">Dashboard</button>
+    <button data-page="users">Users &amp; Friends</button>
+    <button data-page="network">Network Graph</button>
+    <button data-page="mutual">Mutual Friends</button>
+    <button data-page="bfs">BFS Traversal</button>
+    <button data-page="dfs">DFS Traversal</button>
+    <button data-page="recs">Recommendations</button>
+    <button data-page="path">Shortest Path</button>
+    <button data-page="algorithmLab">Algorithm Lab</button>
+    <button data-page="insights">Network Insights</button>
+    <button data-page="activityPage">Activity &amp; Audit</button>
+  </nav>
+  <button class="ghost" id="reset" title="Restore the original sample network">Reset demo data</button>
+</aside>
+<main>
+  <button class="menu" id="menu" aria-label="Toggle menu">☰</button>
+  <header class="topbar"><div class="crumb"><span>Workspace</span><b>/</b><strong id="currentSection">Dashboard</strong></div><div class="topbar-right"><span class="live-dot"></span><span class="live-label">Local demo active</span><div class="top-avatar">LJ</div></div></header>
+
+  <section id="dashboard" class="page on">
+    <h1>Welcome to Your Social Network</h1>
+    <p class="muted">A clearer view of your people, connections, and the paths that bring everyone together.</p>
+    <div class="hero-panel"><div class="hero-copy"><span class="eyebrow">YOUR NETWORK, IN FOCUS</span><h2>Connections create<br><em>opportunities.</em></h2><p>Explore how your community connects. Find shared circles, discover new people, and see the shortest path between any two friends.</p><button class="btn" data-go="network">Explore your network <span aria-hidden="true">↗</span></button></div><div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="orb-node node-a">A</span><span class="orb-node node-b">B</span><span class="orb-node node-c">C</span><span class="orb-node node-d">D</span><span class="orb-node node-e">E</span><span class="orb-core">◎</span></div></div><div class="section-kicker"><span>NETWORK OVERVIEW</span><i></i><small>Live from your demo data</small></div><div class="stats" id="stats"></div>
+    <div class="row">
+      <div class="card"><h3>Network growth</h3><div id="growth" class="bars"></div></div>
+      <div class="card"><h3>Recent activity</h3><ul id="activity" class="list"></ul></div>
+    </div>
+    <div class="actions">
+      <button class="btn" data-go="users">Add a user</button>
+      <button class="btn" data-go="bfs">Run BFS</button>
+      <button class="btn" data-go="path">Find shortest path</button>
+      <button class="btn" data-go="recs">See suggestions</button>
+    </div>
+  </section>
+
+  <section id="users" class="page">
+    <h1>Users &amp; Friends</h1>
+    <p class="muted">Discover people in your community and manage your connections.</p>
+    <div class="bar"><input id="search" type="search" placeholder="Search users by name…"><button class="btn" id="addUser">+ Add new user</button></div>
+    <div id="cards" class="grid"></div>
+  </section>
+
+  <section id="network" class="page">
+    <h1>Friend Network</h1>
+    <p class="muted">Click a user to highlight their connections.</p>
+    <div class="card graph-card"><div class="graph-toolbar"><div><h3>Connection map</h3><p class="muted">Select any node to inspect its direct connections.</p></div><div class="graph-legend"><span><i class="legend-user"></i>User</span><span><i class="legend-link"></i>Friendship</span></div></div><div class="graph-controls"><span class="graph-hint">Drag nodes to rearrange · Use controls to zoom</span><div><button class="ghost sm" id="graphZoomOut" aria-label="Zoom out">−</button><button class="ghost sm" id="graphZoomIn" aria-label="Zoom in">+</button><button class="ghost sm" id="graphFit">Fit view</button><button class="ghost sm" id="graphReset">Reset layout</button></div></div><div id="g-network" class="graph interactive-graph"></div><div id="netInfo" class="muted"></div></div>
+  </section>
+
+  <section id="mutual" class="page">
+    <h1>Mutual Friends Finder</h1>
+    <div class="bar"><select id="m1"></select><span>and</span><select id="m2"></select><button class="btn" id="mGo">Find mutual friends</button></div>
+    <div class="card" id="mOut"></div>
+  </section>
+
+  <section id="bfs" class="page">
+    <h1>Breadth First Search</h1>
+    <p class="muted">BFS explores level by level using a queue: all friends first, then friends of friends.</p>
+    <div class="bar"><select id="bfsS"></select><button class="btn" id="bfsGo">Run BFS</button></div>
+    <div class="card"><div id="g-bfs" class="graph"></div><div id="bfsOut" class="order"></div></div>
+  </section>
+
+  <section id="dfs" class="page">
+    <h1>Depth First Search</h1>
+    <p class="muted">DFS goes as deep as possible along one friend chain before backtracking (recursion / stack).</p>
+    <div class="bar"><select id="dfsS"></select><button class="btn" id="dfsGo">Run DFS</button></div>
+    <div class="card"><div id="g-dfs" class="graph"></div><div id="dfsOut" class="order"></div></div>
+  </section>
+
+  <section id="recs" class="page">
+    <h1>Friend Recommendations</h1>
+    <div class="bar"><select id="recU"></select></div>
+    <div id="recOut" class="grid"></div>
+  </section>
+
+  <section id="insights" class="page">
+    <h1>Network Insights</h1>
+    <p class="muted">Understand the structure of your community with graph-based metrics computed from your current network.</p>
+    <div class="insight-stats" id="insightStats"></div>
+    <div class="row insight-row">
+      <div class="card"><div class="panel-heading"><div><h3>Most connected users</h3><p class="muted">Ranked by degree centrality</p></div><span class="panel-icon">↗</span></div><div id="leaderboard" class="leaderboard"></div></div>
+      <div class="card"><div class="panel-heading"><div><h3>Community structure</h3><p class="muted">Connected components found using BFS</p></div><span class="panel-icon">⌘</span></div><div id="communities" class="community-list"></div></div>
+    </div>
+    <div class="row insight-row">
+      <div class="card"><div class="panel-heading"><div><h3>Network influence</h3><p class="muted">Closeness and betweenness centrality, calculated from shortest paths.</p></div><span class="panel-icon">✦</span></div><div id="influenceRanks" class="leaderboard"></div></div>
+      <div class="card"><div class="panel-heading"><div><h3>Critical connectors</h3><p class="muted">Articulation points and bridge friendships found with Tarjan's algorithm.</p></div><span class="panel-icon">⌁</span></div><div id="criticalConnectors" class="community-list"></div></div>
+    </div>
+    <div class="card" style="margin-top:16px"><div class="panel-heading"><div><h3>Network resilience</h3><p class="muted">What happens if a critical user or friendship disappears?</p></div><span class="panel-icon">◇</span></div><div id="resilienceSummary" class="muted"></div></div>
+    <div class="card export-card"><div><h3>Take your network with you</h3><p class="muted">Export the current users and friendships as a portable JSON file.</p></div><button class="btn" id="exportData">Export network data ↓</button></div>
+  </section>
+
+  <section id="activityPage" class="page">
+    <h1>Activity &amp; Audit Trail</h1>
+    <p class="muted">A chronological view of changes made to this local demo network.</p>
+    <div class="card audit-card"><div class="panel-heading"><div><h3>Recent network events</h3><p class="muted">Latest actions are shown first.</p></div><span class="panel-icon">◷</span></div><ul id="auditList" class="list audit-list"></ul></div>
+    <div class="card export-card"><div><h3>Keep a record</h3><p class="muted">Download users, friendships, and recent activity as JSON.</p></div><button class="btn" id="exportAudit">Export full backup ↓</button></div>
+  </section>
+
+  <section id="algorithmLab" class="page">
+    <h1>Algorithm Lab</h1>
+    <p class="muted">Explore exactly how graph traversal works, one operation at a time. The trace is generated from your current friendships.</p>
+    <div class="card algo-controls">
+      <label>Algorithm<select id="labAlgo"><option value="bfs">Breadth First Search (Queue)</option><option value="dfs">Depth First Search (Stack)</option></select></label>
+      <label>Starting user<select id="labStart"></select></label>
+      <button class="btn" id="labBuild">Build trace</button>
+    </div>
+    <div class="algo-layout">
+      <div class="card algo-graph-card"><div class="panel-heading"><div><h3>Live traversal</h3><p class="muted">Purple = current · Blue = visited · Green = frontier</p></div><span class="panel-icon">⌘</span></div><div id="g-algo" class="graph"></div><div class="algo-progress"><div class="algo-progress-track"><i id="labProgress"></i></div><span id="labStepLabel">Step 0 of 0</span></div></div>
+      <div class="card algo-state-card"><span class="eyebrow">CURRENT OPERATION</span><h2 id="labCurrent">Ready to explore</h2><p id="labExplain" class="muted">Choose an algorithm and starting user, then build the trace.</p><div class="algo-state-grid"><div><small id="labFrontierTitle">Queue</small><div id="labFrontier" class="algo-token-list">—</div></div><div><small>Visited</small><div id="labVisited" class="algo-token-list">—</div></div></div><div><small>Traversal order</small><div id="labOrder" class="algo-token-list">—</div></div><div class="algo-actions"><button class="ghost" id="labPrev" disabled>← Previous</button><button class="btn" id="labNext" disabled>Next step →</button><button class="ghost" id="labPlay" disabled>▶ Auto play</button></div></div>
+    </div>
+    <div class="card algo-concept"><h3>What to observe</h3><p class="muted" id="labConcept">BFS uses a queue (First In, First Out) and visits neighbours level by level. DFS uses a stack (Last In, First Out) and explores one branch deeply before backtracking.</p></div>
+  </section>
+
+  <section id="path" class="page">
+    <h1>Shortest Connection Path</h1>
+    <div class="bar"><select id="p1"></select><span>to</span><select id="p2"></select><button class="btn" id="pGo">Find path</button></div>
+    <div class="card"><div id="g-path" class="graph"></div><div id="pathOut" class="order"></div></div>
+  </section>
+</main>
+
+<dialog id="userDlg" aria-labelledby="userDlgTitle"><form id="userForm" novalidate>
+  <div class="dialog-heading"><h3 id="userDlgTitle">Add new user</h3><button class="dialog-x" id="uClose" type="button" aria-label="Close add user dialog" title="Close">×</button></div>
+  <label>Name<input id="uName" required maxlength="30"></label>
+  <label>Bio<input id="uBio" maxlength="80" placeholder="Short bio (optional)"></label>
+  <p id="uErr" class="err"></p>
+  <div class="bar"><button class="btn" id="uSave" type="button">Save user</button><button class="ghost" id="uCancel" type="button">Cancel</button></div>
+</form></dialog>
+
+<dialog id="frDlg"><form method="dialog">
+  <h3 id="frTitle"></h3><div id="frList" class="list"></div>
+  <div class="bar"><button class="ghost" value="close">Close</button></div>
+</form></dialog>
+
+<dialog id="profileDlg"><div class="profile-head"><div id="profileAvatar"></div><div><span class="eyebrow">NETWORK PROFILE</span><h2 id="profileName"></h2><p id="profileBio" class="muted"></p></div></div><div id="profileMetrics" class="profile-metrics"></div><h3>Direct connections</h3><div id="profileFriends" class="profile-friends"></div><div class="bar profile-actions"><button class="btn" id="profileManage">Manage friends</button><button class="btn red" id="profileDelete">Remove user</button><button class="ghost" id="profileClose">Close</button></div></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="script.js"></script>
+</body>
+</html>
